@@ -1,4 +1,5 @@
 const express = require('express')
+const cors = require('cors')
 const winston = require('winston')
 const morgan = require('morgan')
 const bodyParser = require('body-parser')
@@ -24,16 +25,11 @@ app.authenticator = new JwtAuthenticator(jwtSecretKey)
 
 // third party middlewares
 app
+  .use(cors())
   .use(morgan('tiny'))
   .use(bodyParser.json())
 
 // custom middlewares
-app.all("*", (req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*")
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
-  next()
-})
-
 app
   .use(/^(?!\/login).*$/, (req, res, next) => {
     const token = getTokenFromHeader(req.header('Authorization'))
