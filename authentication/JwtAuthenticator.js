@@ -7,11 +7,7 @@ module.exports = class JwtAuthenticator {
   }
 
   sign(user) {
-    const payload = {
-      username: user.username
-    }
-  
-    return jwt.sign(payload, this.secretKey, {expiresIn: '30 minutes'});
+    return jwt.sign(user, this.secretKey, {expiresIn: '30 minutes'});
   }
 
   verify(token) {

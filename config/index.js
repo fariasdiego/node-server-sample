@@ -7,11 +7,8 @@ const consign = require('consign')
 const JwtAuthenticator = require('../authentication/JwtAuthenticator')
 const AuthenticationError = require('../errors/AuthenticationError')
 
-
-
 const app = express()
 const jwtSecretKey = process.env['JWT_KEY']
-const getTokenFromHeader = (header) => header ? header.split('Bearer').pop().trim() : null
 
 const logger = winston.createLogger({
   format: winston.format.simple(),
@@ -23,6 +20,17 @@ const logger = winston.createLogger({
 app.logger = logger
 app.authenticator = new JwtAuthenticator(jwtSecretKey)
 
+const getDecodedToken = (req) => {
+  let header = req.header('Authorization')
+  if (header) {
+    return app.authenticator.verify(header.split('Bearer').pop().trim())
+  }
+
+  return null
+}
+
+app.getDecodedToken = getDecodedToken
+
 // third party middlewares
 app
   .use(cors())
@@ -32,9 +40,7 @@ app
 // custom middlewares
 app
   .use(/^(?!\/login).*$/, (req, res, next) => {
-    const token = getTokenFromHeader(req.header('Authorization'))
-
-    const decodedToken = app.authenticator.verify(token)
+    getDecodedToken(req)
     next()
   })
 
