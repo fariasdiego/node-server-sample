@@ -28,6 +28,12 @@ app
   .use(bodyParser.json())
 
 // custom middlewares
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*")
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
+  next()
+})
+
 app
   .use(/^(?!\/login).*$/, (req, res, next) => {
     const token = getTokenFromHeader(req.header('Authorization'))
@@ -35,12 +41,6 @@ app
     const decodedToken = app.authenticator.verify(token)
     next()
   })
-
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*")
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
-  next()
-})
 
 consign()
   .include('routes')
